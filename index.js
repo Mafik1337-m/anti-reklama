@@ -41,13 +41,11 @@ client.on('messageCreate', async msg => {
 
     if (hasPhoto) {
       for (const a of msg.attachments.values()) {
-        if (a.contentType && a.contentType.startsWith('image/')) {
-          const hash = await getImageHash(a.url);
-          if (spamHashes.has(hash)) {
-            await msg.delete().catch(()=>{});
-            msg.channel.send(`${msg.author} РІР°С€Рµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ Р·Р°РїСЂРµС‰РµРЅРѕ РЅР° СЌС‚РѕРј РєР°РЅР°Р»Рµ Discord`);
-            return;
-          }
+        const hash = await getImageHash(a.url).catch(() => null);
+        if (hash && spamHashes.has(hash)) {
+          await msg.delete().catch(()=>{});
+          msg.channel.send(`${msg.author} РІР°С€Рµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ Р·Р°РїСЂРµС‰РµРЅРѕ РЅР° СЌС‚РѕРј РєР°РЅР°Р»Рµ Discord`);
+          return;
         }
       }
     }
