@@ -4,8 +4,19 @@ const client = new Client({
 });
 const crypto = require('crypto');
 
-const spamHashes = new Set();
+const fs = require('fs');
+
+let spamHashes = new Set();
 const PREFIX = '!';
+
+try {
+  const data = JSON.parse(fs.readFileSync('hashes.json', 'utf8'));
+  spamHashes = new Set(data);
+} catch(e) {}
+
+function saveHashes() {
+  fs.writeFileSync('hashes.json', JSON.stringify([...spamHashes]));
+}
 
 async function getImageHash(url) {
   const res = await fetch(url, { headers: { 'User-Agent': 'DiscordBot' } });
@@ -28,6 +39,7 @@ client.on('messageCreate', async msg => {
       const attach = msg.attachments.first();
       const hash = await getImageHash(attach.url);
       spamHashes.add(hash);
+      saveHashes();
       await msg.reply('С„РѕС‚Рѕ РґРѕР±Р°РІР»РµРЅРѕ РІ СЃРїР°Рј-Р»РёСЃС‚');
       await msg.delete().catch(()=>{});
       return;
